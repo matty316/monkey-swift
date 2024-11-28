@@ -11,19 +11,23 @@ struct REPL {
     static let prompt = ">> "
     
     static func start() throws {
-        print(prompt, terminator: "")
-        let input = readLine(strippingNewline: true)
-        
-        guard let input = input else {
-            return
+        while true {
+            print(prompt, terminator: "")
+            
+            guard let input = readLine(strippingNewline: true) else {
+                return
+            }
+            let p = Parser(lexer: Lexer(input: input))
+            let prog = p.parseProgram()
+            if !p.errors.isEmpty {
+                printErrors(p.errors)
+                continue
+            }
+            print(prog.string())
         }
-        
-        let l = Lexer(input: input)
-        
-        var tok = l.nextToken()
-        while tok.tokenType != .EOF {
-            print(tok)
-            tok = l.nextToken()
-        }
+    }
+    
+    static func printErrors(_ errors: [String]) {
+        print(errors.joined(separator: "/n"))
     }
 }
