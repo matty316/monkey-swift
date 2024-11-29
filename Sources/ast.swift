@@ -168,3 +168,12 @@ struct CallExpression: Expression {
         return "\(function.string())(\(args))"
     }
 }
+
+struct StringLiteral: Expression {
+    let token: Token
+    let value: String
+
+    func string() -> String {
+        token.literal
+    }
+}

@@ -6,7 +6,7 @@
 //
 
 enum ObjectType: String {
-    case Integer, Boolean, Null, ReturnValue, Error, Function
+    case Integer, Boolean, Null, ReturnValue, Error, Function, String
 }
 
 protocol Object {
@@ -90,4 +90,11 @@ struct Function: Object {
         let paramsString = params.map { $0.value }.joined(separator: ", ")
         return "fn(\(paramsString)) {\n\(body.string())\n}"
     }
+}
+
+struct StringObject: Object {
+    let value: String
+    
+    var objectType: ObjectType = .String
+    func inspect() -> String { value }
 }

@@ -10,6 +10,7 @@ enum TokenType: String {
     case EOF
     
     case INT = "int"
+    case STRING = "string"
     case IDENT
     
     case ASSIGN = "="

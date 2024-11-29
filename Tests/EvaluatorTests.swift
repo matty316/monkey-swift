@@ -161,7 +161,10 @@ if (10 > 1) {
     return 1
 }
 """,
-        "foobar"
+        "foobar",
+        """
+"Hello" - "World"        
+""",
     ], [
         "type mismatch: Integer + Boolean",
         "type mismatch: Integer + Boolean",
@@ -170,7 +173,8 @@ if (10 > 1) {
         "unknown operator: Boolean + Boolean",
         "unknown operator: Boolean + Boolean",
         "unknown operator: Boolean + Boolean",
-        "identifier not found: foobar"
+        "identifier not found: foobar",
+        "unknown operator: String - String"
     ]))
     func testErrorHandling(input: String, exp: String) async throws {
         let eval = testEval(input: input)
@@ -218,5 +222,19 @@ addTwo(2);
 """
         
         testIntegerObject(obj: testEval(input: input), exp: 4)
+    }
+    
+    @Test func testStringLiteral() {
+        let input = "\"Hello World!\""
+        let str = testEval(input: input) as! StringObject
+        #expect(str.value == "Hello World!")
+    }
+    
+    @Test func testStringConcat() {
+        let input = """
+"Hello" + " " + "World!"
+"""
+        let str = testEval(input: input) as! StringObject
+        #expect(str.value == "Hello World!")
     }
 }

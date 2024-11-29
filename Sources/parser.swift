@@ -53,6 +53,7 @@ class Parser {
         self.prefixParseFns[.LPAREN] = parseGroupedExpression
         self.prefixParseFns[.IF] = parseIfExpression
         self.prefixParseFns[.FUNCTION] = parseFunctionLiteral
+        self.prefixParseFns[.STRING] = parseString
         
         self.infixParseFns[.PLUS] = parseInfixExpression(expr:)
         self.infixParseFns[.MINUS] = parseInfixExpression(expr:)
@@ -206,6 +207,10 @@ class Parser {
     
     private func parseBoolean() -> Expression {
         return BooleanExpression(token: curToken, value: curTokenIs(t: .TRUE))
+    }
+    
+    private func parseString() -> Expression {
+        return StringLiteral(token: curToken, value: curToken.literal)
     }
     
     private func parseGroupedExpression() -> Expression? {

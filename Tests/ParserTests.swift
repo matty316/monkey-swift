@@ -269,6 +269,17 @@ struct ParserTests {
         testInfixExpression(expr: callExpr.arguments[2], left: 4, op: "+", right: 5)
     }
     
+    @Test func testStringLiteral() {
+        let input = "\"hello world\""
+        let p = Parser(lexer: Lexer(input: input))
+        let prog = p.parseProgram()
+        checkParserErrors(p)
+        
+        let stmt = prog.statements[0] as! ExpressionStatement
+        let lit = stmt.expression as! StringLiteral
+        #expect(lit.value == "hello world")
+    }
+    
     func testIntergerLiteral(expr: Expression, val: Int) {
         let lit = expr as! IntegerLiteral
         #expect(lit.value == val)

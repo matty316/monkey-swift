@@ -69,6 +69,8 @@ struct Evaluator {
             }
             
             return applyFn(fn, args)
+        case let str as StringLiteral:
+            return StringObject(value: str.value)
         default: return NULL
         }
     }
@@ -135,6 +137,8 @@ struct Evaluator {
             }
         } else if left.objectType != right.objectType {
             return newError(format: "type mismatch: %@ %@ %@", left.objectType.rawValue, op, right.objectType.rawValue)
+        } else if left.objectType == .String && right.objectType == .String {
+            return evalStringInfix(op, left, right)
         }
         return newError(format: "unknown operator: %@ %@ %@", left.objectType.rawValue, op, right.objectType.rawValue)
     }
@@ -234,5 +238,13 @@ struct Evaluator {
         }
         
         return obj
+    }
+    
+    static func evalStringInfix(_ op: String, _ left: Object, _ right: Object) -> Object {
+        guard let left = left as? StringObject, let right = right as? StringObject, op == "+" else {
+            return newError(format: "unknown operator: %@ %@ %@", left.objectType.rawValue, op, right.objectType.rawValue)
+        }
+        
+        return StringObject(value: left.value + right.value)			
     }
 }

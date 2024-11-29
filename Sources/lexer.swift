@@ -75,6 +75,10 @@ class Lexer {
         case "<": tok = Token(tokenType: .LT)
         case ">": tok = Token(tokenType: .GT)
         case "\0": tok = Token(tokenType: .EOF)
+        case "\"":
+            let type = TokenType.STRING
+            let literal = readString()
+            tok = Token(tokenType: type, literal: literal)
         default:
             if isLetter(ch) {
                 let literal = readIdentifier()
@@ -117,6 +121,17 @@ class Lexer {
             return .IDENT
         }
         return tokenType
+    }
+    
+    private func readString() -> String {
+        let start = input.index(after: position)
+        while true {
+            readChar()
+            if ch == "\"" || ch == "\0" {
+                break
+            }
+        }
+        return String(input[start..<position])
     }
     
     private func skipWhitespace() {
