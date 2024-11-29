@@ -13,7 +13,7 @@ struct REPL {
     static func start() throws {
         while true {
             print(prompt, terminator: "")
-            
+            let env = Env()
             guard let input = readLine(strippingNewline: true) else {
                 return
             }
@@ -23,7 +23,9 @@ struct REPL {
                 printErrors(p.errors)
                 continue
             }
-            print(prog.string())
+            let evaluated = Evaluator.eval(node: prog, env: env)
+            
+            print(evaluated.inspect())
         }
     }
     

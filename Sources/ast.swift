@@ -6,33 +6,31 @@
 //
 
 protocol Node {
-    var token: Token { get }
     func tokenLiteral() -> String
     func string() -> String
 }
 
-extension Node {
-    func tokenLiteral() -> String { token.literal }
-}
-
 protocol Statement: Node {
+    var token: Token { get }
     func statementNode()
 }
 
 extension Statement {
+    func tokenLiteral() -> String { token.literal }
     func statementNode() {}
 }
 
 protocol Expression: Node {
+    var token: Token { get }
     func expressionNode()
 }
 
 extension Expression {
+    func tokenLiteral() -> String { token.literal }
     func expressionNode() {}
 }
 
-struct Program {
-    
+struct Program: Node {
     let statements: [Statement]
     
     func tokenLiteral() -> String {
