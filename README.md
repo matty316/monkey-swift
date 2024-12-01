@@ -1,1 +1,1 @@
-swift implementation of the interpreter from [writing an interpreter in go](https://interpreterbook.com)
+swift implementations of the interpreter from [writing an interpreter in go](https://interpreterbook.com) (on the interpreter branch) and the compiler from [writing a compiler in go](https://compilerbook.com)
