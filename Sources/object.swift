@@ -6,7 +6,7 @@
 //
 
 enum ObjectType: String {
-    case Integer, Boolean, Null, ReturnValue, Error, Function, String
+    case Integer, Boolean, Null, ReturnValue, Error, Function, String, Builtin, Array, Hash
 }
 
 protocol Object {
@@ -14,17 +14,28 @@ protocol Object {
     func inspect() -> String
 }
 
-struct Integer: Object {
+// I know i could just use hashable but i wanna stay close to the book
+protocol HashKeyable {
+    var hashKey: HashKey { get }
+}
+
+struct Integer: Object, HashKeyable {
     let objectType: ObjectType = .Integer
     let value: Int
+    var hashKey: HashKey {
+        HashKey(objectType: objectType, value: value)
+    }
     func inspect() -> String {
         "\(value)"
     }
 }
 
-struct Boolean: Object {
+struct Boolean: Object, HashKeyable {
     let value: Bool
     var objectType: ObjectType = .Boolean
+    var hashKey: HashKey {
+        HashKey(objectType: objectType, value: value ? 1 : 0)
+    }
     func inspect() -> String {
         "\(value)"
     }
@@ -92,9 +103,52 @@ struct Function: Object {
     }
 }
 
-struct StringObject: Object {
+struct StringObject: Object, HashKeyable {
     let value: String
-    
+    var hashKey: HashKey {
+        var hasher = Hasher()
+        hasher.combine(value)
+        return HashKey(objectType: objectType, value: hasher.finalize())
+    }
     var objectType: ObjectType = .String
     func inspect() -> String { value }
+}
+
+typealias BuiltinFunction = ([Object]) -> Object
+
+struct Builtin: Object {
+    let fn: BuiltinFunction
+    var objectType: ObjectType = .Builtin
+    func inspect() -> String {
+        return "builtin function"
+    }
+}
+
+struct ArrayObject: Object {
+    let elements: [Object]
+    var objectType: ObjectType = .Array
+    func inspect() -> String {
+        "[\(elements.map{ $0.inspect() }.joined(separator: ", "))]"
+    }
+}
+
+struct HashKey: Hashable {
+    let objectType: ObjectType
+    let value: Int
+}
+
+struct HashPair {
+    let key: Object
+    let value: Object
+}
+
+struct Hash: Object {
+    let pairs: [HashKey: HashPair]
+    var objectType: ObjectType = .Hash
+    func inspect() -> String {
+        let pairsString = pairs
+            .map { "\($0.value.key.inspect()): \($0.value.value.inspect())" }
+            .joined(separator: ", ")
+        return "{\(pairsString)}"
+    }
 }

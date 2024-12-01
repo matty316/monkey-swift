@@ -35,6 +35,8 @@ if (5 < 10) {
 10 != 9;
 "foobar"
 "foo bar"
+[1, 2]
+{"foo": "bar"}
 """
         let tests = [
             Token(tokenType: .LET),
@@ -109,6 +111,16 @@ if (5 < 10) {
             Token(tokenType: .SEMICOLON),
             Token(tokenType: .STRING, literal: "foobar"),
             Token(tokenType: .STRING, literal: "foo bar"),
+            Token(tokenType: .LBRACKET),
+            Token(tokenType: .INT, literal: "1"),
+            Token(tokenType: .COMMA),
+            Token(tokenType: .INT, literal: "2"),
+            Token(tokenType: .RBRACKET),
+            Token(tokenType: .LBRACE),
+            Token(tokenType: .STRING, literal: "foo"),
+            Token(tokenType: .COLON),
+            Token(tokenType: .STRING, literal: "bar"),
+            Token(tokenType: .RBRACE),
             Token(tokenType: .EOF)
         ]
         let l = Lexer(input: input)

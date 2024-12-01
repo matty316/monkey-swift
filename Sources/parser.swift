@@ -25,6 +25,7 @@ class Parser {
         case product = 4
         case prefix = 5
         case call = 6
+        case index = 7
     }
     
     let precedences: [TokenType: Precedence] = [
@@ -36,7 +37,8 @@ class Parser {
         .MINUS: .sum,
         .SLASH: .product,
         .ASTERISK: .product,
-        .LPAREN: .call
+        .LPAREN: .call,
+        .LBRACKET: .index
     ]
     
     init(lexer: Lexer) {
@@ -54,6 +56,8 @@ class Parser {
         self.prefixParseFns[.IF] = parseIfExpression
         self.prefixParseFns[.FUNCTION] = parseFunctionLiteral
         self.prefixParseFns[.STRING] = parseString
+        self.prefixParseFns[.LBRACKET] = parseArrayLiteral
+        self.prefixParseFns[.LBRACE] = parseHashLiteral
         
         self.infixParseFns[.PLUS] = parseInfixExpression(expr:)
         self.infixParseFns[.MINUS] = parseInfixExpression(expr:)
@@ -64,6 +68,7 @@ class Parser {
         self.infixParseFns[.LT] = parseInfixExpression(expr:)
         self.infixParseFns[.GT] = parseInfixExpression(expr:)
         self.infixParseFns[.LPAREN] = parseCallExpression(expr:)
+        self.infixParseFns[.LBRACKET] = parseIndexExpression(expr:)
     }
     
     private func nextToken() {
@@ -316,39 +321,11 @@ class Parser {
     
     private func parseCallExpression(expr: Expression?) -> Expression? {
         let token = curToken
-        guard let expr = expr, let args = parseCallArgs() else {
+        guard let expr = expr, let args = parseExpressionList(.RPAREN) else {
             peekError(t: curToken.tokenType)
             return nil
         }
         return CallExpression(token: token, function: expr, arguments: args)
-    }
-    
-    private func parseCallArgs() -> [Expression]? {
-        var args = [Expression]()
-        
-        if peekTokenIs(t: .RPAREN) {
-            nextToken()
-            return args
-        }
-        
-        nextToken()
-        if let arg = parseExpression(.lowest) {
-            args.append(arg)
-        }
-        
-        while peekTokenIs(t: .COMMA) {
-            nextToken()
-            nextToken()
-            if let arg = parseExpression(.lowest) {
-                args.append(arg)
-            }
-        }
-        
-        guard expectPeek(t: .RPAREN) else {
-            return nil
-        }
-        
-        return args
     }
     
     private func noPrefixParseFnError(t: TokenType) {
@@ -393,5 +370,102 @@ class Parser {
             return .lowest
         }
         return p
+    }
+    
+    private func parseArrayLiteral() -> Expression? {
+        let token = curToken
+        guard let elements = parseExpressionList(.RBRACKET) else {
+            peekError(t: curToken.tokenType)
+            return nil
+        }
+        return ArrayLiteral(token: token, elements: elements)
+    }
+    
+    private func parseExpressionList(_ end: TokenType) -> [Expression]? {
+        var list = [Expression]()
+        
+        if peekTokenIs(t: end) {
+            nextToken()
+            return list
+        }
+        
+        nextToken()
+        guard let expr = parseExpression(.lowest) else {
+            peekError(t: curToken.tokenType)
+            return nil
+        }
+        list.append(expr)
+        
+        while peekTokenIs(t: .COMMA) {
+            nextToken()
+            nextToken()
+            guard let expr = parseExpression(.lowest) else {
+                peekError(t: curToken.tokenType)
+                return nil
+            }
+            list.append(expr)
+        }
+        
+        guard expectPeek(t: end) else {
+            return nil
+        }
+        
+        return list
+    }
+    
+    private func parseIndexExpression(expr: Expression?) -> Expression? {
+        guard let expr = expr else {
+            peekError(t: curToken.tokenType)
+            return nil
+        }
+        
+        let token = curToken
+        
+        nextToken()
+        guard let index = parseExpression(.lowest) else {
+            peekError(t: curToken.tokenType)
+            return nil
+        }
+        
+        guard expectPeek(t: .RBRACKET) else {
+            return nil
+        }
+        
+        return IndexExpression(token: token, left: expr, index: index)
+    }
+    
+    private func parseHashLiteral() -> Expression? {
+        let token = curToken
+        var pairs = [(Expression, Expression)]()
+        while !peekTokenIs(t: .RBRACE) {
+            nextToken()
+            guard let key = parseExpression(.lowest) else {
+                peekError(t: curToken.tokenType)
+                return nil
+            }
+            
+            guard expectPeek(t: .COLON) else {
+                return nil
+            }
+            
+            nextToken()
+            
+            guard let value = parseExpression(.lowest) else {
+                peekError(t: curToken.tokenType)
+                return nil
+            }
+            
+            pairs.append((key, value))
+            
+            if !peekTokenIs(t: .RBRACE) && !expectPeek(t: .COMMA) {
+                return nil
+            }
+        }
+        
+        guard expectPeek(t: .RBRACE) else {
+            return nil
+        }
+        
+        return HashLiteral(token: token, pairs: pairs)
     }
 }

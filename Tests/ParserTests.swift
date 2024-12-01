@@ -146,7 +146,9 @@ struct ParserTests {
             "!(true == true)",
             "a + add(b * c) + d",
             "add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
-            "add(a + b + c * d / f + g)"
+            "add(a + b + c * d / f + g)",
+            "a * [1, 2, 3, 4][b * c] * d",
+            "add(a * b[2], b[1], 2 * [1, 2][1])"
         ], [
             "((-a) * b)",
             "(!(-a))",
@@ -171,7 +173,9 @@ struct ParserTests {
             "(!(true == true))",
             "((a + add((b * c))) + d)",
             "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))",
-            "add((((a + b) + ((c * d) / f)) + g))"
+            "add((((a + b) + ((c * d) / f)) + g))",
+            "((a * ([1, 2, 3, 4][(b * c)])) * d)",
+            "add((a * (b[2])), (b[1]), (2 * ([1, 2][1])))"
         ]
     ))
     func testOpPrecedence(input: String, exp: String) {
@@ -320,5 +324,135 @@ struct ParserTests {
         let letStmt = stmt as! LetStatement
         #expect(letStmt.name.value == name)
         #expect(letStmt.name.tokenLiteral() == name)
+    }
+    
+    @Test func testParseArray() {
+        let input = "[1, 2 * 2, 3 + 3]"
+        let p = Parser(lexer: Lexer(input: input))
+        let prog = p.parseProgram()
+        checkParserErrors(p)
+        
+        #expect(prog.statements.count == 1)
+        let stmt = prog.statements[0] as! ExpressionStatement
+        let array = stmt.expression as! ArrayLiteral
+        #expect(array.elements.count == 3)
+        testIntergerLiteral(expr: array.elements[0], val: 1)
+        testInfixExpression(expr: array.elements[1], left: 2, op: "*", right: 2)
+        testInfixExpression(expr: array.elements[2], left: 3, op: "+", right: 3)
+    }
+    
+    @Test func testParsingIndexExpression() {
+        let input = "myArray[1 + 1]"
+        let p = Parser(lexer: Lexer(input: input))
+        let prog = p.parseProgram()
+        checkParserErrors(p)
+        
+        #expect(prog.statements.count == 1)
+        let indexExpr = (prog.statements[0] as! ExpressionStatement).expression as! IndexExpression
+        testIdentifier(expr: indexExpr.left, value: "myArray")
+        testInfixExpression(expr: indexExpr.index, left: 1, op: "+", right: 1)
+    }
+    
+    @Test func testParsingHashLiteral() {
+        let input = """
+{"one": 1, "two": 2, "three": 3}
+"""
+        let p = Parser(lexer: Lexer(input: input))
+        let prog = p.parseProgram()
+        checkParserErrors(p)
+        
+        #expect(prog.statements.count == 1)
+        let hash = (prog.statements[0] as! ExpressionStatement).expression as! HashLiteral
+        #expect(hash.pairs.count == 3)
+        let exp = ["one": 1, "two": 2, "three": 3]
+        
+        for pair in hash.pairs {
+            let key = pair.key as! StringLiteral
+            let expVal = exp[key.value]!
+            testIntergerLiteral(expr: pair.value, val: expVal)
+        }
+    }
+    
+    @Test func testParsingHashLiteralInt() {
+        let input = """
+{1: 1, 2: 2, 3: 3}
+"""
+        let p = Parser(lexer: Lexer(input: input))
+        let prog = p.parseProgram()
+        checkParserErrors(p)
+        
+        #expect(prog.statements.count == 1)
+        let hash = (prog.statements[0] as! ExpressionStatement).expression as! HashLiteral
+        #expect(hash.pairs.count == 3)
+        let exp = [1: 1, 2: 2, 3: 3]
+        
+        for pair in hash.pairs {
+            let key = pair.key as! IntegerLiteral
+            let expVal = exp[key.value]!
+            testIntergerLiteral(expr: pair.value, val: expVal)
+        }
+    }
+    
+    @Test func testParsingHashLiteralBool() {
+        let input = """
+{true: 1, false: 2}
+"""
+        let p = Parser(lexer: Lexer(input: input))
+        let prog = p.parseProgram()
+        checkParserErrors(p)
+        
+        #expect(prog.statements.count == 1)
+        let hash = (prog.statements[0] as! ExpressionStatement).expression as! HashLiteral
+        #expect(hash.pairs.count == 2)
+        let exp = [true: 1, false: 2]
+        
+        for pair in hash.pairs {
+            let key = pair.key as! BooleanExpression
+            let expVal = exp[key.value]!
+            testIntergerLiteral(expr: pair.value, val: expVal)
+        }
+    }
+    
+    @Test func testParsingHashLiteralWithExpression() {
+        let input = """
+{"one": 0 + 1, "two": 10 - 8, "three": 15 / 5}
+"""
+        let p = Parser(lexer: Lexer(input: input))
+        let prog = p.parseProgram()
+        checkParserErrors(p)
+        
+        #expect(prog.statements.count == 1)
+        let hash = (prog.statements[0] as! ExpressionStatement).expression as! HashLiteral
+        #expect(hash.pairs.count == 3)
+        let exp: [String: (Expression) -> ()] = [
+            "one": { expr in
+                testInfixExpression(expr: expr, left: 0, op: "+", right: 1)
+            },
+            "two": { expr in
+                testInfixExpression(expr: expr, left: 10, op: "-", right: 8)
+            },
+            "three": { expr in
+                testInfixExpression(expr: expr, left: 15, op: "/", right: 5)
+            },
+        ]
+        
+        for pair in hash.pairs {
+            let literal = pair.key as! StringLiteral
+            let testFunc = exp[literal.value]!
+            testFunc(pair.value)
+        }
+    }
+    
+    @Test func testEmptyHashLiteral() {
+        let input = "{}"
+        
+        let p = Parser(lexer: Lexer(input: input))
+        let prog = p.parseProgram()
+        checkParserErrors(p)
+        
+        #expect(prog.statements.count == 1)
+        
+        let hash = (prog.statements[0] as! ExpressionStatement).expression as! HashLiteral
+        #expect(hash.pairs.isEmpty)
     }
 }

@@ -32,6 +32,9 @@ enum TokenType: String {
     case RPAREN = ")"
     case LBRACE = "{"
     case RBRACE = "}"
+    case LBRACKET = "["
+    case RBRACKET = "]"
+    case COLON = ":"
     
     case FUNCTION = "fn"
     case LET = "let"

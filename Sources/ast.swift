@@ -177,3 +177,30 @@ struct StringLiteral: Expression {
         token.literal
     }
 }
+
+struct ArrayLiteral: Expression {
+    let token: Token
+    let elements: [Expression]
+    func string() -> String {
+        "[\(elements.map {$0.string()}.joined(separator: ", "))]"
+    }
+}
+
+struct IndexExpression: Expression {
+    let token: Token
+    let left: Expression
+    let index: Expression
+    func string() -> String {
+        "(\(left.string())[\(index.string())])"
+    }
+}
+
+struct HashLiteral: Expression {
+    let token: Token
+    //cant make this a dictionary because Expression is not hashable. will make it a dict in eval stage
+    let pairs: [(key: Expression, value: Expression)]
+    func string() -> String {
+        let pairsString = pairs.map { "\($0.key.string()): \($0.value.string())" }.joined(separator: ", ")
+        return "{\(pairsString)}"
+    }
+}

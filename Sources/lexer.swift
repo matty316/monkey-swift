@@ -63,6 +63,9 @@ class Lexer {
         case "{": tok = Token(tokenType: .LBRACE)
         case "}": tok = Token(tokenType: .RBRACE)
         case "-": tok = Token(tokenType: .MINUS)
+        case "[": tok = Token(tokenType: .LBRACKET)
+        case "]": tok = Token(tokenType: .RBRACKET)
+        case ":": tok = Token(tokenType: .COLON)
         case "!":
             if peekChar() == "=" {
                 readChar()
