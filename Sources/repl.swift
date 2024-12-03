@@ -23,9 +23,23 @@ struct REPL {
                 printErrors(p.errors)
                 continue
             }
-            let evaluated = Evaluator.eval(node: prog, env: env)
             
-            print(evaluated.inspect())
+            let comp = Compiler()
+            let compErr = comp.compile(node: prog)
+            if let err = compErr {
+                print(err)
+                continue
+            }
+            
+            let vm = VM(bytecode: comp.bytecode)
+            let vmErr = vm.run()
+            if let err = vmErr {
+                print(err)
+                continue
+            }
+            let top = vm.stackTop
+            
+            print(top?.inspect() ?? "")
         }
     }
     

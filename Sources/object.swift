@@ -152,3 +152,7 @@ struct Hash: Object {
         return "{\(pairsString)}"
     }
 }
+
+let TRUE = Boolean(value: true)
+let FALSE = Boolean(value: false)
+let NULL = Null()

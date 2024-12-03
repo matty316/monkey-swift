@@ -330,8 +330,8 @@ let two = "two";
             StringObject(value: "two").hashKey: 2,
             StringObject(value: "three").hashKey: 3,
             Integer(value: 4).hashKey: 4,
-            Evaluator.TRUE.hashKey: 5,
-            Evaluator.FALSE.hashKey: 6,
+            TRUE.hashKey: 5,
+            FALSE.hashKey: 6,
         ]
         
         #expect(res.pairs.count == exp.count)

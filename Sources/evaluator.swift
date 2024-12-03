@@ -8,10 +8,6 @@
 
 
 struct Evaluator {
-    static let TRUE = Boolean(value: true)
-    static let FALSE = Boolean(value: false)
-    static let NULL = Null()
-    
     //TODO: idk if this is bad yet but shutup compiler
     nonisolated(unsafe) static let builtins: [String: Object] = [
         "len": Builtin(fn: { args in
