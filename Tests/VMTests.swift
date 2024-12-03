@@ -39,7 +39,7 @@ struct VmTests {
             throw err
         }
         
-        let stackElem = vm.stackTop!
+        let stackElem = vm.lastPoppedStackElem
         testExpObj(exp: test.exp, actual: stackElem)
     }
     
@@ -53,12 +53,25 @@ struct VmTests {
     }
     
     @Test(arguments: [
-        VmTestCase(input: "1", exp: 1),
-        VmTestCase(input: "2", exp: 2),
-        VmTestCase(input: "1 + 2", exp: 3)
+        test("1", 1),
+        test("2", 2),
+        test("1 + 2", 3),
+        test("1 - 2", -1),
+        test("1 * 2", 2),
+        test("4 / 2", 2),
+        test("50 / 2 * 2 + 10 -5", 55),
+        test("5 + 5 + 5 + 5 - 10", 10),
+        test("2 * 2 * 2 * 2 * 2", 32),
+        test("5 * 2 + 10", 20),
+        test("5 + 2 * 10", 25),
+        test("5 * (2 + 10)", 60),
     ])
     func testIntArithmetic(test: VmTestCase) throws {
         try runVmTests(test: test)
+    }
+    
+    static func test(_ input: String, _ exp: Any) -> VmTestCase {
+        VmTestCase(input: input, exp: exp)
     }
 }
 

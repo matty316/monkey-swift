@@ -18,9 +18,40 @@ struct CompilerTests {
     @Test(arguments: [
         CompilerTestCase(input: "1 + 2",
                          expConstants: [1, 2],
-                         expInstructions: [Code.make(op: .Constant, operands: 0),
-                                           Code.make(op: .Constant, operands: 1),
-                                           Code.make(op: .Add)])])
+                         expInstructions: [
+                            Code.make(op: .Constant, operands: 0),
+                            Code.make(op: .Constant, operands: 1),
+                            Code.make(op: .Add),
+                            Code.make(op: .Pop),]),
+        CompilerTestCase(input: "1; 2",
+                         expConstants: [1, 2],
+                         expInstructions: [
+                            Code.make(op: .Constant, operands: 0),
+                            Code.make(op: .Pop),
+                            Code.make(op: .Constant, operands: 1),
+                            Code.make(op: .Pop),]),
+        CompilerTestCase(input: "1 - 2",
+                         expConstants: [1, 2],
+                         expInstructions: [
+                            Code.make(op: .Constant, operands: 0),
+                            Code.make(op: .Constant, operands: 1),
+                            Code.make(op: .Sub),
+                            Code.make(op: .Pop),]),
+        CompilerTestCase(input: "1 * 2",
+                         expConstants: [1, 2],
+                         expInstructions: [
+                            Code.make(op: .Constant, operands: 0),
+                            Code.make(op: .Constant, operands: 1),
+                            Code.make(op: .Mul),
+                            Code.make(op: .Pop),]),
+        CompilerTestCase(input: "2 / 1",
+                         expConstants: [2, 1],
+                         expInstructions: [
+                            Code.make(op: .Constant, operands: 0),
+                            Code.make(op: .Constant, operands: 1),
+                            Code.make(op: .Div),
+                            Code.make(op: .Pop),]),
+    ])
     func testIntegerArithmetic(tests: CompilerTestCase) {
         runCompilerTests(tests: tests)
     }

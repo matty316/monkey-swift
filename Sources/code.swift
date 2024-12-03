@@ -10,13 +10,17 @@ import Foundation
 typealias Instructions = [UInt8]
 
 enum OpCode: UInt8 {
-    case Constant
-    case Add
+    case Constant, Add, Pop, Sub, Mul, Div
 }
 
 struct Definition {
     let name: String
     let opWidths: [Int]
+    
+    init(name: String, opWidths: [Int] = []) {
+        self.name = name
+        self.opWidths = opWidths
+    }
 }
 
 extension Instructions {
@@ -60,7 +64,11 @@ extension Instructions {
 struct Code {
     static let definitions: [OpCode: Definition] = [
         .Constant: Definition(name: "OpConstant", opWidths: [2]),
-        .Add: Definition(name: "OpAdd", opWidths: []),
+        .Add: Definition(name: "OpAdd"),
+        .Pop: Definition(name: "OpPop"),
+        .Div: Definition(name: "OpDiv"),
+        .Sub: Definition(name: "OpSub"),
+        .Mul: Definition(name: "OpMul"),
     ]
     
     static func make(op: OpCode, operands: Int...) -> Instructions {

@@ -8,7 +8,7 @@
 let stackSize = 2048
 
 enum VMError: Error {
-    case General, StackOverflow
+    case General, StackOverflow, UnsupportedBinaryOp, UnimplementedOp, UnknownIntOperator
 }
 
 class VM {
@@ -18,12 +18,8 @@ class VM {
     var stack: [Object]
     var sp: Int
     
-    var stackTop: Object? {
-        if sp == 0 {
-            return nil
-        }
-        
-        return stack[sp-1]
+    var lastPoppedStackElem: Object {
+        stack[sp]
     }
     
     init(bytecode: Bytecode) {
@@ -36,7 +32,9 @@ class VM {
     func run() -> VMError? {
         var ip = 0
         while ip < instructions.count {
-            let op = OpCode(rawValue: instructions[ip])
+            guard let op = OpCode(rawValue: instructions[ip]) else {
+                return VMError.UnimplementedOp
+            }
             
             switch op {
             case .Constant:
@@ -46,15 +44,13 @@ class VM {
                 if let err = err {
                     return err
                 }
-            case .Add:
-                guard let right = pop() as? Integer, let left = pop() as? Integer else {
-                    return VMError.General
+            case .Add, .Sub, .Mul, .Div:
+                let err = executeBinary(op: op)
+                if let err = err {
+                    return err
                 }
-                let leftVal = left.value
-                let rightVal = right.value
-                let res = leftVal + rightVal
-                push(Integer(value: res))
-            default: break
+            case .Pop:
+                pop()
             }
             ip += 1
         }
@@ -74,6 +70,31 @@ class VM {
         return nil
     }
     
+    func executeBinary(op: OpCode) -> VMError? {
+        if let right = pop() as? Integer, let left = pop() as? Integer {
+            let leftVal = left.value
+            let rightVal = right.value
+            return executeBinaryIntegerOp(op: op, leftVal: leftVal, rightVal: rightVal)
+        }
+        return VMError.UnsupportedBinaryOp
+    }
+    
+    func executeBinaryIntegerOp(op: OpCode, leftVal: Int, rightVal: Int) -> VMError? {
+        switch op {
+        case .Add:
+            return push(Integer(value: leftVal + rightVal))
+        case .Sub:
+            return push(Integer(value: leftVal - rightVal))
+        case .Mul:
+            return push(Integer(value: leftVal * rightVal))
+        case .Div:
+            return push(Integer(value: leftVal / rightVal))
+        default:
+            return VMError.UnknownIntOperator
+        }
+    }
+    
+    @discardableResult
     func pop() -> Object {
         let o = stack[sp-1]
         sp -= 1

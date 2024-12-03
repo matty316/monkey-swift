@@ -27,6 +27,7 @@ class Compiler {
             if err != nil {
                 return err
             }
+            emit(op: .Pop)
         case let infixExpr as InfixExpression:
             var err = compile(node: infixExpr.left)
             if err != nil {
@@ -41,6 +42,12 @@ class Compiler {
             switch infixExpr.op {
             case "+":
                 emit(op: .Add)
+            case "-":
+                emit(op: .Sub)
+            case "*":
+                emit(op: .Mul)
+            case "/":
+                emit(op: .Div)
             default:
                 return CompilerError.UnknownOperator
             }

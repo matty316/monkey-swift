@@ -13,7 +13,6 @@ struct REPL {
     static func start() throws {
         while true {
             print(prompt, terminator: "")
-            let env = Env()
             guard let input = readLine(strippingNewline: true) else {
                 return
             }
@@ -37,9 +36,9 @@ struct REPL {
                 print(err)
                 continue
             }
-            let top = vm.stackTop
+            let lastPopped = vm.lastPoppedStackElem
             
-            print(top?.inspect() ?? "")
+            print(lastPopped.inspect())
         }
     }
     
