@@ -23,7 +23,7 @@ struct VmTests {
         #expect(exp == intObj.value)
     }
     
-    func runVmTests(test: VmTestCase) throws {
+    func runVmTest(test: VmTestCase) throws {
         let program = parse(input: test.input)
         let comp = Compiler()
         
@@ -47,9 +47,16 @@ struct VmTests {
         switch exp {
         case let exp as Int:
             testIntegerObj(exp: exp, actual: actual)
+        case let exp as Bool:
+            testBoolObj(exp: exp, actual: actual)
         default:
             break
         }
+    }
+    
+    func testBoolObj(exp: Bool, actual: Object) {
+        let boolean = actual as! Boolean
+        #expect(exp == boolean.value)
     }
     
     @Test(arguments: [
@@ -67,7 +74,15 @@ struct VmTests {
         test("5 * (2 + 10)", 60),
     ])
     func testIntArithmetic(test: VmTestCase) throws {
-        try runVmTests(test: test)
+        try runVmTest(test: test)
+    }
+    
+    @Test(arguments: [
+        test("true", true),
+        test("false", false)
+    ])
+    func testBooleanExpr(test: VmTestCase) throws {
+        try runVmTest(test: test)
     }
     
     static func test(_ input: String, _ exp: Any) -> VmTestCase {

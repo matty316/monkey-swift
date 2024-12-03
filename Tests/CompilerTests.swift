@@ -53,19 +53,25 @@ struct CompilerTests {
                             Code.make(op: .Pop),]),
     ])
     func testIntegerArithmetic(tests: CompilerTestCase) {
-        runCompilerTests(tests: tests)
+        runCompilerTest(test: tests)
     }
     
+    @Test(arguments: [
+        test("true", [], [Code.make(op: .True), Code.make(op: .Pop)]),
+        test("false", [], [Code.make(op: .False), Code.make(op: .Pop)]),
+    ])
+    func testBooleanExpr(test: CompilerTestCase) {
+        runCompilerTest(test: test)
+    }
     
-    
-    func runCompilerTests(tests: CompilerTestCase) {
-        let prog = parse(input: tests.input)
+    func runCompilerTest(test: CompilerTestCase) {
+        let prog = parse(input: test.input)
         let compiler = Compiler()
         
         #expect(compiler.compile(node: prog) == nil)
         let bytecode = compiler.bytecode
-        testInstructions(exp: tests.expInstructions, instructions: bytecode.instructions)
-        testConstants(exp: tests.expConstants, constants: bytecode.constants)
+        testInstructions(exp: test.expInstructions, instructions: bytecode.instructions)
+        testConstants(exp: test.expConstants, constants: bytecode.constants)
     }
     
     func parse(input: String) -> Program {
@@ -106,5 +112,9 @@ struct CompilerTests {
     func testIntegerObj(exp: Int, actual: Object) {
         let intObj = actual as! Integer
         #expect(exp == intObj.value)
+    }
+    
+    static func test(_ input: String, _ expConstants: [Any], _ expInstructions: [Instructions]) -> CompilerTestCase {
+        CompilerTestCase(input: input, expConstants: expConstants, expInstructions: expInstructions)
     }
 }

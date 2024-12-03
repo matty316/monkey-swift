@@ -10,7 +10,20 @@ import Foundation
 typealias Instructions = [UInt8]
 
 enum OpCode: UInt8 {
-    case Constant, Add, Pop, Sub, Mul, Div
+    case Constant, Add, Pop, Sub, Mul, Div, True, False
+    
+    var definition: Definition {
+        switch self {
+        case .Constant: Definition(name: "OpConstant", opWidths: [2])
+        case .Add: Definition(name: "OpAdd")
+        case .Pop: Definition(name: "OpPop")
+        case .Sub: Definition(name: "OpSub")
+        case .Mul: Definition(name: "OpMul")
+        case .Div: Definition(name: "OpDiv")
+        case .True: Definition(name: "OpTrue")
+        case .False: Definition(name: "OpFalse")
+        }
+    }
 }
 
 struct Definition {
@@ -62,23 +75,12 @@ extension Instructions {
 }
 
 struct Code {
-    static let definitions: [OpCode: Definition] = [
-        .Constant: Definition(name: "OpConstant", opWidths: [2]),
-        .Add: Definition(name: "OpAdd"),
-        .Pop: Definition(name: "OpPop"),
-        .Div: Definition(name: "OpDiv"),
-        .Sub: Definition(name: "OpSub"),
-        .Mul: Definition(name: "OpMul"),
-    ]
-    
     static func make(op: OpCode, operands: Int...) -> Instructions {
         return make(op: op, operands: operands)
     }
     
     static func make(op: OpCode, operands: [Int]) -> Instructions {
-        guard let def = definitions[op] else {
-            return Instructions()
-        }
+        let def = op.definition
         
         var instructionLen = 1
         for w in def.opWidths {
@@ -102,9 +104,7 @@ struct Code {
     }
     
     static func lookup(op: OpCode) -> Definition? {
-        guard let def = definitions[op] else {
-            return nil
-        }
+        let def = op.definition
         
         return def
     }

@@ -54,6 +54,8 @@ class Compiler {
         case let intLit as IntegerLiteral:
             let integer = Integer(value: intLit.value)
             emit(op: .Constant, operands: addConstant(obj: integer))
+        case let boolean as BooleanExpression:
+            emit(op: boolean.value ? .True : .False)
         default: return nil
         }
         return nil

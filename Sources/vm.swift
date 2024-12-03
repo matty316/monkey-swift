@@ -51,6 +51,16 @@ class VM {
                 }
             case .Pop:
                 pop()
+            case .True:
+                let err = push(TRUE)
+                if let err = err {
+                    return err
+                }
+            case .False:
+                let err = push(FALSE)
+                if let err = err {
+                    return err
+                }
             }
             ip += 1
         }
