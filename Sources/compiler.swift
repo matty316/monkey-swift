@@ -29,6 +29,20 @@ class Compiler {
             }
             emit(op: .Pop)
         case let infixExpr as InfixExpression:
+            if infixExpr.op == "<" {
+                var err = compile(node: infixExpr.right)
+                if err != nil {
+                    return err
+                }
+                
+                err = compile(node: infixExpr.left)
+                if err != nil {
+                    return err
+                }
+                emit(op: .GreaterThan)
+                return nil
+            }
+            
             var err = compile(node: infixExpr.left)
             if err != nil {
                 return err
@@ -48,6 +62,12 @@ class Compiler {
                 emit(op: .Mul)
             case "/":
                 emit(op: .Div)
+            case ">":
+                emit(op: .GreaterThan)
+            case "==":
+                emit(op: .Equal)
+            case "!=":
+                emit(op: .NotEqual)
             default:
                 return CompilerError.UnknownOperator
             }
@@ -72,7 +92,7 @@ class Compiler {
     
     @discardableResult
     func emit(op: OpCode, operands: Int...) -> Int {
-        let ins = Code.make(op: op, operands: operands)
+        let ins = Code.make(op: op, operands)
         let pos = addInstruction(ins)
         return pos
     }

@@ -18,7 +18,7 @@ struct CodeTests {
         let operands = input.operands
         let exp = input.exp
         
-        let instruction = Code.make(op: op, operands: operands)
+        let instruction = Code.make(op: op, operands)
         for (i, b) in exp.enumerated() {
             #expect(instruction[i] == b)
         }
@@ -27,8 +27,8 @@ struct CodeTests {
     @Test func testInstructionString() {
         let instructions = [
             Code.make(op: .Add),
-            Code.make(op: .Constant, operands: 2),
-            Code.make(op: .Constant, operands: 65535)
+            Code.make(op: .Constant, 2),
+            Code.make(op: .Constant, 65535)
         ]
         
         let exp = """
@@ -52,7 +52,7 @@ struct CodeTests {
         let operands = tests.1
         let bytesRead = tests.2
         
-        let instruction = Code.make(op: op, operands: operands)
+        let instruction = Code.make(op: op, operands)
         let def = Code.lookup(op: op)!
         
         let (operandsRead, n) = Code.readOperands(def: def, ins: Array(instruction[1...]))

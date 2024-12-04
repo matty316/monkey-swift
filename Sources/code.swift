@@ -10,7 +10,7 @@ import Foundation
 typealias Instructions = [UInt8]
 
 enum OpCode: UInt8 {
-    case Constant, Add, Pop, Sub, Mul, Div, True, False
+    case Constant, Add, Pop, Sub, Mul, Div, True, False, Equal, NotEqual, GreaterThan
     
     var definition: Definition {
         switch self {
@@ -22,6 +22,9 @@ enum OpCode: UInt8 {
         case .Div: Definition(name: "OpDiv")
         case .True: Definition(name: "OpTrue")
         case .False: Definition(name: "OpFalse")
+        case .Equal: Definition(name: "OpEqual")
+        case .NotEqual: Definition(name: "OpNotEqual")
+        case .GreaterThan: Definition(name: "OpGreaterThan")
         }
     }
 }
@@ -75,11 +78,11 @@ extension Instructions {
 }
 
 struct Code {
-    static func make(op: OpCode, operands: Int...) -> Instructions {
-        return make(op: op, operands: operands)
+    static func make(op: OpCode, _ operands: Int...) -> Instructions {
+        return make(op: op, operands)
     }
     
-    static func make(op: OpCode, operands: [Int]) -> Instructions {
+    static func make(op: OpCode, _ operands: [Int]) -> Instructions {
         let def = op.definition
         
         var instructionLen = 1

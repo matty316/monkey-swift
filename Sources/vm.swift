@@ -8,7 +8,7 @@
 let stackSize = 2048
 
 enum VMError: Error {
-    case General, StackOverflow, UnsupportedBinaryOp, UnimplementedOp, UnknownIntOperator
+    case General, StackOverflow, UnsupportedBinaryOp, UnimplementedOp, UnknownIntOperator, UnknownBoolOperator
 }
 
 class VM {
@@ -61,6 +61,11 @@ class VM {
                 if let err = err {
                     return err
                 }
+            case .Equal, .NotEqual, .GreaterThan:
+                let err = executeComparison(op)
+                if let err = err {
+                    return err
+                }
             }
             ip += 1
         }
@@ -104,10 +109,43 @@ class VM {
         }
     }
     
+    func executeComparison(_ op: OpCode) -> VMError? {
+        let right = pop()
+        let left = pop()
+        
+        if let right = right as? Integer, let left = left as? Integer {
+            return executeIntComparison(op, left: left, right: right)
+        }
+        
+        return toBooleanObj(op: op, left: left, right: right)
+    }
+    
+    func executeIntComparison(_ op: OpCode, left: Integer, right: Integer) -> VMError? {
+        var truthy = false
+        switch op {
+        case .Equal: truthy = left.value == right.value
+        case .NotEqual: truthy = left.value != right.value
+        case .GreaterThan: truthy = left.value > right.value
+        default: return VMError.UnknownIntOperator
+        }
+        return push(truthy ? TRUE : FALSE)
+    }
+    
     @discardableResult
     func pop() -> Object {
         let o = stack[sp-1]
         sp -= 1
         return o
+    }
+    
+    func toBooleanObj(op: OpCode, left: Object, right: Object) -> VMError? {
+        if let left = left as? Boolean, let right = right as? Boolean {
+            switch op {
+            case .Equal: return push(left.value == right.value ? TRUE : FALSE)
+            case .NotEqual: return push(left.value != right.value ? TRUE : FALSE)
+            default: return VMError.UnknownBoolOperator
+            }
+        }
+        return push(FALSE)
     }
 }

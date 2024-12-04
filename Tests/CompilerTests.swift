@@ -19,36 +19,36 @@ struct CompilerTests {
         CompilerTestCase(input: "1 + 2",
                          expConstants: [1, 2],
                          expInstructions: [
-                            Code.make(op: .Constant, operands: 0),
-                            Code.make(op: .Constant, operands: 1),
+                            Code.make(op: .Constant, 0),
+                            Code.make(op: .Constant, 1),
                             Code.make(op: .Add),
                             Code.make(op: .Pop),]),
         CompilerTestCase(input: "1; 2",
                          expConstants: [1, 2],
                          expInstructions: [
-                            Code.make(op: .Constant, operands: 0),
+                            Code.make(op: .Constant, 0),
                             Code.make(op: .Pop),
-                            Code.make(op: .Constant, operands: 1),
+                            Code.make(op: .Constant, 1),
                             Code.make(op: .Pop),]),
         CompilerTestCase(input: "1 - 2",
                          expConstants: [1, 2],
                          expInstructions: [
-                            Code.make(op: .Constant, operands: 0),
-                            Code.make(op: .Constant, operands: 1),
+                            Code.make(op: .Constant, 0),
+                            Code.make(op: .Constant, 1),
                             Code.make(op: .Sub),
                             Code.make(op: .Pop),]),
         CompilerTestCase(input: "1 * 2",
                          expConstants: [1, 2],
                          expInstructions: [
-                            Code.make(op: .Constant, operands: 0),
-                            Code.make(op: .Constant, operands: 1),
+                            Code.make(op: .Constant, 0),
+                            Code.make(op: .Constant, 1),
                             Code.make(op: .Mul),
                             Code.make(op: .Pop),]),
         CompilerTestCase(input: "2 / 1",
                          expConstants: [2, 1],
                          expInstructions: [
-                            Code.make(op: .Constant, operands: 0),
-                            Code.make(op: .Constant, operands: 1),
+                            Code.make(op: .Constant, 0),
+                            Code.make(op: .Constant, 1),
                             Code.make(op: .Div),
                             Code.make(op: .Pop),]),
     ])
@@ -59,6 +59,12 @@ struct CompilerTests {
     @Test(arguments: [
         test("true", [], [Code.make(op: .True), Code.make(op: .Pop)]),
         test("false", [], [Code.make(op: .False), Code.make(op: .Pop)]),
+        test("1 > 2", [1, 2], [Code.make(op: .Constant, 0), Code.make(op: .Constant, 1), Code.make(op: .GreaterThan), Code.make(op: .Pop)]),
+        test("1 < 2", [2, 1], [Code.make(op: .Constant, 0), Code.make(op: .Constant, 1), Code.make(op: .GreaterThan), Code.make(op: .Pop)]),
+        test("1 == 2", [1, 2], [Code.make(op: .Constant, 0), Code.make(op: .Constant, 1), Code.make(op: .Equal), Code.make(op: .Pop)]),
+        test("1 != 2", [1, 2], [Code.make(op: .Constant, 0), Code.make(op: .Constant, 1), Code.make(op: .NotEqual), Code.make(op: .Pop)]),
+        test("true == false", [], [Code.make(op: .True), Code.make(op: .False), Code.make(op: .Equal), Code.make(op: .Pop)]),
+        test("true != false", [], [Code.make(op: .True), Code.make(op: .False), Code.make(op: .NotEqual), Code.make(op: .Pop)])
     ])
     func testBooleanExpr(test: CompilerTestCase) {
         runCompilerTest(test: test)

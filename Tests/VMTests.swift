@@ -79,7 +79,24 @@ struct VmTests {
     
     @Test(arguments: [
         test("true", true),
-        test("false", false)
+        test("false", false),
+        test("1 < 2", true),
+        test("1 > 2", false),
+        test("1 < 1", false),
+        test("1 > 1", false),
+        test("1 == 1", true),
+        test("1 != 1", false),
+        test("1 == 2", false),
+        test("1 != 2", true),
+        test("true == true", true),
+        test("false == false", true),
+        test("true == false", false),
+        test("true != false", true),
+        test("false != true", true),
+        test("(1 < 2) == true", true),
+        test("(1 < 2) == false", false),
+        test("(1 > 2) == true", false),
+        test("(1 > 2) == false", true)
     ])
     func testBooleanExpr(test: VmTestCase) throws {
         try runVmTest(test: test)

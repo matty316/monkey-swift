@@ -5,8 +5,6 @@
 //  Created by Matthew Reed on 11/28/24.
 //
 
-
-
 struct Evaluator {
     //TODO: idk if this is bad yet but shutup compiler
     nonisolated(unsafe) static let builtins: [String: Object] = [
