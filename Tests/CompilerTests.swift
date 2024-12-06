@@ -51,6 +51,12 @@ struct CompilerTests {
                             Code.make(op: .Constant, 1),
                             Code.make(op: .Div),
                             Code.make(op: .Pop),]),
+        CompilerTestCase(input: "-1",
+                         expConstants: [1],
+                         expInstructions: [
+                            Code.make(op: .Constant, 0),
+                            Code.make(op: .Minus),
+                            Code.make(op: .Pop)])
     ])
     func testIntegerArithmetic(tests: CompilerTestCase) {
         runCompilerTest(test: tests)
@@ -64,7 +70,8 @@ struct CompilerTests {
         test("1 == 2", [1, 2], [Code.make(op: .Constant, 0), Code.make(op: .Constant, 1), Code.make(op: .Equal), Code.make(op: .Pop)]),
         test("1 != 2", [1, 2], [Code.make(op: .Constant, 0), Code.make(op: .Constant, 1), Code.make(op: .NotEqual), Code.make(op: .Pop)]),
         test("true == false", [], [Code.make(op: .True), Code.make(op: .False), Code.make(op: .Equal), Code.make(op: .Pop)]),
-        test("true != false", [], [Code.make(op: .True), Code.make(op: .False), Code.make(op: .NotEqual), Code.make(op: .Pop)])
+        test("true != false", [], [Code.make(op: .True), Code.make(op: .False), Code.make(op: .NotEqual), Code.make(op: .Pop)]),
+        test("!true", [], [Code.make(op: .True), Code.make(op: .Bang), Code.make(op: .Pop)])
     ])
     func testBooleanExpr(test: CompilerTestCase) {
         runCompilerTest(test: test)

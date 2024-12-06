@@ -8,7 +8,7 @@
 let stackSize = 2048
 
 enum VMError: Error {
-    case General, StackOverflow, UnsupportedBinaryOp, UnimplementedOp, UnknownIntOperator, UnknownBoolOperator
+    case General, StackOverflow, UnsupportedBinaryOp, UnimplementedOp, UnknownIntOperator, UnknownBoolOperator, UnsupportedUnaryOp
 }
 
 class VM {
@@ -63,6 +63,16 @@ class VM {
                 }
             case .Equal, .NotEqual, .GreaterThan:
                 let err = executeComparison(op)
+                if let err = err {
+                    return err
+                }
+            case .Bang:
+                let err = executeBang()
+                if let err = err {
+                    return err
+                }
+            case .Minus:
+                let err = executeMinus()
                 if let err = err {
                     return err
                 }
@@ -129,6 +139,26 @@ class VM {
         default: return VMError.UnknownIntOperator
         }
         return push(truthy ? TRUE : FALSE)
+    }
+    
+    func executeBang() -> VMError? {
+        let operand = pop()
+        if let operand = operand as? Boolean {
+            if operand.value {
+                return push(FALSE)
+            } else {
+                return push(TRUE)
+            }
+        }
+        return push(FALSE)
+    }
+    
+    func executeMinus() -> VMError? {
+        let operand = pop()
+        if let operand = operand as? Integer {
+            return push(Integer(value: -operand.value))
+        }
+        return VMError.UnsupportedUnaryOp
     }
     
     @discardableResult

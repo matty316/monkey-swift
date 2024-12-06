@@ -10,7 +10,7 @@ import Foundation
 typealias Instructions = [UInt8]
 
 enum OpCode: UInt8 {
-    case Constant, Add, Pop, Sub, Mul, Div, True, False, Equal, NotEqual, GreaterThan
+    case Constant, Add, Pop, Sub, Mul, Div, True, False, Equal, NotEqual, GreaterThan, Minus, Bang
     
     var definition: Definition {
         switch self {
@@ -25,6 +25,8 @@ enum OpCode: UInt8 {
         case .Equal: Definition(name: "OpEqual")
         case .NotEqual: Definition(name: "OpNotEqual")
         case .GreaterThan: Definition(name: "OpGreaterThan")
+        case .Minus: Definition(name: "OpMinus")
+        case .Bang: Definition(name: "OpBang")
         }
     }
 }

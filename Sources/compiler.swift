@@ -76,6 +76,19 @@ class Compiler {
             emit(op: .Constant, operands: addConstant(obj: integer))
         case let boolean as BooleanExpression:
             emit(op: boolean.value ? .True : .False)
+        case let prefixExpr as PrefixExpression:
+            let err = compile(node: prefixExpr.right)
+            if let err = err {
+                return err
+            }
+            switch prefixExpr.op {
+            case "!":
+                emit(op: .Bang)
+            case "-":
+                emit(op: .Minus)
+            default:
+                return CompilerError.UnknownOperator
+            }
         default: return nil
         }
         return nil

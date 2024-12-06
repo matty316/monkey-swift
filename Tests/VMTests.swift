@@ -72,6 +72,10 @@ struct VmTests {
         test("5 * 2 + 10", 20),
         test("5 + 2 * 10", 25),
         test("5 * (2 + 10)", 60),
+        test("-5", -5),
+        test("-10", -10),
+        test("-50 + 100 + -50", 0),
+        test("(5 + 10 * 2 + 15 / 3) * 2 + -10", 50)
     ])
     func testIntArithmetic(test: VmTestCase) throws {
         try runVmTest(test: test)
@@ -96,7 +100,13 @@ struct VmTests {
         test("(1 < 2) == true", true),
         test("(1 < 2) == false", false),
         test("(1 > 2) == true", false),
-        test("(1 > 2) == false", true)
+        test("(1 > 2) == false", true),
+        test("!true", false),
+        test("!false", true),
+        test("!5", false),
+        test("!!true", true),
+        test("!!false", false),
+        test("!!5", true)
     ])
     func testBooleanExpr(test: VmTestCase) throws {
         try runVmTest(test: test)
